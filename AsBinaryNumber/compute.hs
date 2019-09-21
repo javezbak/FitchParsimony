@@ -11,9 +11,7 @@ getNumBits x
 compute aTen aEleven aTwenty aTwentyOne = 
     let rZero = (.&.) aTen aTwenty; --A10 AND A20
         rOne = (.&.) aEleven aTwentyOne --A11 AND A21
-    in  
-    let xorVal = (xor rZero rOne); --R0 XOR R1
+        xorVal = (xor rZero rOne); --R0 XOR R1
         allOnes =  (2^(getNumBits (xorVal)))-1
-    in 
-    let tmp = xor xorVal allOnes --tmp = NOT(R0 XOR R1)
+        tmp = xor xorVal allOnes --tmp = NOT(R0 XOR R1)
     in ((.|.) rZero tmp, (.|.) rOne tmp) 
