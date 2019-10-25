@@ -1,5 +1,3 @@
-import Data.Bits
-
 -- A = 1, B = 0
 data DNA = A | B deriving (Show, Eq)
 
