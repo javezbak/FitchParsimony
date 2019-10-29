@@ -1,11 +1,12 @@
 import Data.Bits
 
 -- A = 1, B = 0, Q = ?
-data DNA = A | B | Q deriving (Show, Eq)
+data Alphabet = A | B | Q deriving (Show, Eq)
+type FullAlphabet = Maybe Alphabet
 
 -- original value(s): [B,B,A,A,Q,Q,Q] [B,A,B,A,B,A,Q]
--- returns: ([A,A,A,B,A,B,A],[B,A,A,A,B,A,A])
-dnaCompute :: [DNA] -> [DNA] -> ([Bool], [Bool])
+-- returns: ([True,True,True,False,True,False,True],[False,True,True,True,False,True,True])
+dnaCompute :: [FullAlphabet] -> [FullAlphabet] -> ([Bool], [Bool])
 dnaCompute cNodeOne cNodeTwo =
     let a10 :: [Bool]
         a10 = [notA x  | x <- cNodeOne]
@@ -26,14 +27,13 @@ dnaCompute cNodeOne cNodeTwo =
         tmp = dFlip xorVal --NOT(R0 XOR R1)
 
     in (dOr tmp r0, dOr tmp r1)
-    where notA :: DNA -> Bool
-          notA A = False
+    where notA :: FullAlphabet -> Bool
+          notA (Just A) = False
           notA _ = True
 
-          notB :: DNA -> Bool
-          notB B = False
+          notB :: FullAlphabet -> Bool
+          notB (Just B) = False
           notB _ = True
-
 
 
 dAnd :: Bits b => [b] -> [b] -> [b]
