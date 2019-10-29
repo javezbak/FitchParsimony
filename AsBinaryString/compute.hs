@@ -1,37 +1,55 @@
+import Data.Bits
+
 -- A = 1, B = 0, Q = ?
 data DNA = A | B | Q deriving (Show, Eq)
 
 -- original value(s): [B,B,A,A,Q,Q,Q] [B,A,B,A,B,A,Q]
-dnaCompute :: [DNA] -> [DNA] -> ([DNA], [DNA])
+-- returns: ([A,A,A,B,A,B,A],[B,A,A,A,B,A,A])
+dnaCompute :: [DNA] -> [DNA] -> ([Bool], [Bool])
 dnaCompute cNodeOne cNodeTwo =
-    let aTen = [if x == B || x == Q then A else B | x <- cNodeOne]
-        aEleven = [if x == A || x == Q then A else B | x <- cNodeOne]
-        aTwenty = [if x == B || x == Q then A else B | x <- cNodeTwo]
-        aTwentyOne = [if x == A || x == Q then A else B | x <- cNodeTwo]
+    let a10 :: [Bool]
+        a10 = [notA x  | x <- cNodeOne]
 
-        rZero = dAnd aTen aTwenty --A10 AND A20
-        rOne = dAnd aEleven aTwentyOne --A11 AND A21
+        a20 :: [Bool]
+        a20 = [notA x  | x <- cNodeTwo]
+         
+        a11 :: [Bool] 
+        a11 = [notB x | x <- cNodeOne]
 
-        xorVal = dXor rZero rOne --R0 XOR R1
+        a21 :: [Bool]
+        a21 = [notB x | x <- cNodeTwo]
+            
+        r0 = dAnd a10 a20 --A10 AND A20
+        r1 = dAnd a11 a21 --A11 AND A21
+
+        xorVal = dXor r0 r1 --R0 XOR R1
         tmp = dFlip xorVal --NOT(R0 XOR R1)
-    in (dOr tmp rZero, dOr tmp rOne)
+
+    in (dOr tmp r0, dOr tmp r1)
+    where notA :: DNA -> Bool
+          notA A = False
+          notA _ = True
+
+          notB :: DNA -> Bool
+          notB B = False
+          notB _ = True
 
 
-dAnd :: [DNA] -> [DNA] -> [DNA]
-dAnd valOne valTwo =
-    zipWith (\x y -> if x == A && y == A then A else B) valOne valTwo
 
-dOr :: [DNA] -> [DNA] -> [DNA]
-dOr valOne valTwo = 
-    zipWith (\x y -> if x == A || y == A then A else B) valOne valTwo
+dAnd :: Bits b => [b] -> [b] -> [b]
+dAnd = zipBits (.&.)
 
-dXor :: [DNA] -> [DNA] -> [DNA]
-dXor valOne valTwo =
-    zipWith (\x y -> if x == A && y == B || x == B && y == A then A else B) valOne valTwo
+dOr :: Bits b => [b] -> [b] -> [b]
+dOr = zipBits (.|.)
 
-dFlip :: [DNA] -> [DNA]
-dFlip val = 
-    [if x == A then B else A | x <- val]
+dXor :: Bits b => [b] -> [b] -> [b]
+dXor = zipBits xor
+
+dFlip :: [Bool] -> [Bool]
+dFlip = fmap complement
+
+zipBits :: Bits b => (b -> b -> b) -> [b] -> [b] -> [b]
+zipBits f = zipWith f
 
 
 
