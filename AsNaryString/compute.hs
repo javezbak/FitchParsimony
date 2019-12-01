@@ -1,20 +1,14 @@
 import Data.Bits
-import Data.Maybe
 
--- Q = ?, all other letters are part of character set
-data Alphabet = A | B | C |  D | E | F | G | H | Q deriving (Show, Eq, Bounded, Enum)
-type FullAlphabet = Maybe Alphabet
-
-
--- example values: [Just B,Just B,Just C] [Just B,Just A,Just C]
+-- example values: "BBC" "BAC" "ABCDEFGHQ"
 -- returns: ([False,True,False],[True,True,False],[False,True,True])
-dnaCompute :: [FullAlphabet] -> [FullAlphabet] -> ([[Bool]])
-dnaCompute childNodeOne childNodeTwo =
+dnaCompute :: String -> String -> String -> ([[Bool]])
+dnaCompute childNodeOne childNodeTwo characterSet =
     
     let 
         -- create boolean list of lists to test for presence of each alphabet type in child nodes
-        nodeOnePresence = [dMatchList char childNodeOne | char <- allChars]
-        nodeTwoPresence = [dMatchList char childNodeTwo | char <- allChars]
+        nodeOnePresence = [dMatchList chr childNodeOne | chr <- characterSet]
+        nodeTwoPresence = [dMatchList chr childNodeTwo | chr <- characterSet]
 
         -- put values together with AND operation
         rValues = zipWith (\x y -> dAnd x y) nodeOnePresence nodeTwoPresence
@@ -25,16 +19,14 @@ dnaCompute childNodeOne childNodeTwo =
         aValues = [dOr rVal tmp | rVal <- rValues]
 
     in aValues
-    where 
-        allChars = [(minBound :: Alphabet) ..]
 
 
-dMatchList :: Alphabet -> [FullAlphabet] -> [Bool]
-dMatchList desiredChar charList = [dMatch desiredChar currChar | currChar <- charList]
+dMatchList :: Char -> String -> [Bool]
+dMatchList desiredChr chrList = [dMatch desiredChr currChr | currChr <- chrList]
 
-dMatch :: Alphabet -> FullAlphabet -> Bool
-dMatch desiredChar matchingChar
-    | ((desiredChar == fromJust matchingChar) || (desiredChar == Q)) = True  
+dMatch :: Char -> Char -> Bool
+dMatch desiredChr matchingChr
+    | ((desiredChr == matchingChr) || (desiredChr == 'Q')) = True  
     | otherwise = False
   
 dAnd :: Bits b => [b] -> [b] -> [b]
@@ -55,6 +47,3 @@ dFlip = fmap complement
 
 zipBits :: Bits b => (b -> b -> b) -> [b] -> [b] -> [b]
 zipBits f = zipWith f
-
-
-
